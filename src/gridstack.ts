@@ -2909,7 +2909,7 @@ export class GridStack {
 
       /** called when item starts moving/resizing */
       const onStartMoving = (event: Event, ui: DDUIData) => {
-        console.log("Started moving", el);
+        // console.log("Started moving", el);
         scrollingMonitor = createScrollMonitor(el, {
           onScrollChange: (newLeft, newTop) => {
             ui.position.top = newTop;

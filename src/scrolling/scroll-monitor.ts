@@ -23,12 +23,12 @@ export default class ScrollingMonitor {
   }
 
   start() {
-    console.log(
-      "start:--> container",
-      this.container,
-      this.scaleX,
-      this.scaleY
-    );
+    // console.log(
+    //   "start:--> container",
+    //   this.container,
+    //   this.scaleX,
+    //   this.scaleY
+    // );
     this.container.addEventListener("dragover", this.handleEvent);
     // touchmove events don't seem to work across siblings, so we unfortunately
     // have to attach the listeners to the body
@@ -37,7 +37,7 @@ export default class ScrollingMonitor {
   }
 
   stop() {
-    console.log("stop:--> container", this.container);
+    // console.log("stop:--> container", this.container);
     this.container.removeEventListener("dragover", this.handleEvent);
     this.eventBody.removeEventListener("touchmove", this.handleEvent);
     this.eventBody.removeEventListener("mousemove", this.handleEvent);
@@ -80,12 +80,12 @@ export default class ScrollingMonitor {
       // calculate strength
       this.scaleX = this.options.horizontalStrength(box, coords);
       this.scaleY = this.options.verticalStrength(box, coords);
-      console.log(
-        "start:throttle:--> container",
-        this.scaleX,
-        this.scaleY,
-        !this.frame
-      );
+      // console.log(
+      //   "start:throttle:--> container",
+      //   this.scaleX,
+      //   this.scaleY,
+      //   !this.frame
+      // );
 
       // start scrolling if we need to
       if (!this.frame) {
@@ -97,12 +97,12 @@ export default class ScrollingMonitor {
   );
 
   startScrolling() {
-    console.log(
-      "start:startScrolling:--> container",
-      this.scaleX,
-      this.scaleY,
-      this.options.strengthMultiplier
-    );
+    // console.log(
+    //   "start:startScrolling:--> container",
+    //   this.scaleX,
+    //   this.scaleY,
+    //   this.options.strengthMultiplier
+    // );
 
     let i = 0;
     const tick = () => {
@@ -141,12 +141,12 @@ export default class ScrollingMonitor {
           scrollHeight - clientHeight,
           scrollTop + scaleY * strengthMultiplier
         );
-        console.log(
-          "new Top",
-          newTop,
-          scrollTop + scaleY * strengthMultiplier,
-          scrollHeight - clientHeight
-        );
+        // console.log(
+        //   "new Top",
+        //   newTop,
+        //   scrollTop + scaleY * strengthMultiplier,
+        //   scrollHeight - clientHeight
+        // );
         this.container.scrollTop = newTop;
         onScrollChange(0, newTop - prevScrollTop);
       }
