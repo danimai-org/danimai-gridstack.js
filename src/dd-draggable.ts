@@ -1,5 +1,5 @@
 /**
- * dd-draggable.ts 11.0.1-dev
+ * dd-draggable.ts 11.1.2
  * Copyright (c) 2021-2024  Alain Dumesny - see GridStack root license
  */
 
@@ -224,7 +224,7 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
   protected _mouseUp(e: MouseEvent): void {
     document.removeEventListener('mousemove', this._mouseMove, true);
     document.removeEventListener('mouseup', this._mouseUp, true);
-    if (isTouch) {
+    if (isTouch && e.currentTarget) { // destroy() during nested grid call us again wit fake _mouseUp
       e.currentTarget.removeEventListener('touchmove', touchmove, true);
       e.currentTarget.removeEventListener('touchend', touchend, true);
     }

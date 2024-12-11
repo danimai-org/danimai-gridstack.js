@@ -5,7 +5,9 @@ Change log
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
-- [11.0.1-dev (TBD)](#1101-dev-tbd)
+- [11.1.2 (2024-12-08)](#1112-2024-12-08)
+- [11.1.1 (2024-11-26)](#1111-2024-11-26)
+- [11.1.0 (2024-11-17)](#1110-2024-11-17)
 - [11.0.1 (2024-10-21)](#1101-2024-10-21)
 - [11.0.0 (2024-10-20)](#1100-2024-10-20)
 - [10.3.1 (2024-07-21)](#1031-2024-07-21)
@@ -116,11 +118,20 @@ Change log
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## 11.0.1-dev (TBD)
+## 11.1.2 (2024-12-08)
+* fix: [#2877](https://github.com/gridstack/gridstack.js/pull/2877) angular wrapper uses standalone, while now being compatible down to ng14. thanks to [andre-steudel](https://github.com/andre-steudel)
+* fix: [#2886](https://github.com/gridstack/gridstack.js/issues/2886) added `gs-size-to-content` support
+* fix: [#2887](https://github.com/gridstack/gridstack.js/issues/2887) mobile nested grid TypeError: e.currentTarget is null
+
+## 11.1.1 (2024-11-26)
+* fix: [#2878](https://github.com/gridstack/gridstack.js/pull/2878) make sure sub-grid inherit parent opts by default, with subgrid defaults.
+* fix: [#2879](https://github.com/gridstack/gridstack.js/pull/2879) sub-grid item `sizeToContent:true` now handle content above/below sub grid.
+
+## 11.1.0 (2024-11-17)
+* feat: [#2864](https://github.com/gridstack/gridstack.js/issues/2864) added `GridStackOptions.layout` for nested grid reflow during resize. default to 'list'.
 * fix: [#2859](https://github.com/gridstack/gridstack.js/pull/2859) re-enabled tests and fix numerous issues found (see CL). Also thank you [lmartorella](https://github.com/lmartorella) for getting me going and starting it.
 * fix: [#2851](https://github.com/gridstack/gridstack.js/pull/2851) added support for custom max layout saving - Thank you [lmartorella](https://github.com/lmartorella)
 * fix: [#2492](https://github.com/gridstack/gridstack.js/issues/2492) loading same layout with overlapping widget fix. v10.3.0 regression.
-* fix: [#2864](https://github.com/gridstack/gridstack.js/issues/2864) added `GridStackOptions.layout` for nested grid reflow during resize. default to 'list'.
 
 ## 11.0.1 (2024-10-21)
 * fix: [#2834](https://github.com/gridstack/gridstack.js/pull/2834) v11 angular missing package.json

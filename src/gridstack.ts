@@ -1,5 +1,5 @@
 /*!
- * GridStack 11.0.1-dev
+ * GridStack 11.1.2
  * https://gridstackjs.com/
  *
  * Copyright (c) 2021-2024  Alain Dumesny
@@ -270,6 +270,9 @@ export class GridStack {
   /** point to a parent grid item if we're nested (inside a grid-item in between 2 Grids) */
   public parentGridNode?: GridStackNode;
 
+  /** time to wait for animation (if enabled) to be done so content sizing can happen */
+  public animationDelay = 300 + 10;
+
   protected static engineClass: typeof GridStackEngine;
   protected resizeObserver: ResizeObserver;
 
@@ -402,6 +405,8 @@ export class GridStack {
         : Utils.toNumber(el.getAttribute("gs-max-row")) || gridDefaults.maxRow,
       staticGrid:
         Utils.toBool(el.getAttribute("gs-static")) || gridDefaults.staticGrid,
+      sizeToContent:
+        Utils.toBool(el.getAttribute("gs-size-to-content")) || undefined,
       draggable: {
         handle:
           (opts.handleClass
@@ -624,8 +629,15 @@ export class GridStack {
     }
     //... and set the create options
     ops = Utils.cloneDeep({
-      ...(subGridTemplate || {}),
+      // by default sub-grid inherit from us | parent, other than id, children, etc...
+      ...this.opts,
+      id: undefined,
       children: undefined,
+      column: "auto",
+      columnOpts: undefined,
+      layout: "list",
+      subGridOpts: undefined,
+      ...(subGridTemplate || {}),
       ...(ops || node.subGridOpts || {}),
     });
     node.subGridOpts = ops;
@@ -1626,7 +1638,12 @@ export class GridStack {
       if (m) {
         const widthChanged = m.w !== undefined && m.w !== n.w;
         this.moveNode(n, m);
-        this.resizeToContentCheck(widthChanged, n); // wait for animation if we changed width
+        if (widthChanged && n.subGrid) {
+          // if we're animating the client size hasn't changed yet, so force a change (not exact size)
+          n.subGrid.onResize(this.hasAnimationCSS() ? n.w : undefined);
+        } else {
+          this.resizeToContentCheck(widthChanged, n);
+        }
         delete n._orig; // clear out original position now that we moved #2669
       }
       if (m || changed) {
@@ -1677,8 +1694,11 @@ export class GridStack {
     const itemH = n.h ? n.h * cell - padding : item.clientHeight; // calculated to what cellHeight is or will become (rather than actual to prevent waiting for animation to finish)
     let wantedH: number;
     if (n.subGrid) {
-      // sub-grid - use their actual row count * their cell height
+      // sub-grid - use their actual row count * their cell height, BUT append any content outside of the grid (eg: above text)
       wantedH = n.subGrid.getRow() * n.subGrid.getCellHeight(true);
+      const subRec = n.subGrid.el.getBoundingClientRect();
+      const parentRec = n.subGrid.el.parentElement.getBoundingClientRect();
+      wantedH += subRec.top - parentRec.top;
     } else if (n.subGridOpts?.children?.length) {
       // not sub-grid just yet (case above) wait until we do
       return;
@@ -1957,7 +1977,7 @@ export class GridStack {
       Utils.addCSSRule(
         this._styles,
         `${prefix} > .ui-resizable-ne`,
-        `right: ${right}`
+        `right: ${right}; top: ${top}`
       );
       Utils.addCSSRule(
         this._styles,
@@ -1972,7 +1992,7 @@ export class GridStack {
       Utils.addCSSRule(
         this._styles,
         `${prefix} > .ui-resizable-nw`,
-        `left: ${left}`
+        `left: ${left}; top: ${top}`
       );
       Utils.addCSSRule(
         this._styles,
@@ -2101,6 +2121,7 @@ export class GridStack {
       noMove: "gs-no-move",
       locked: "gs-locked",
       id: "gs-id",
+      sizeToContent: "gs-size-to-content",
     };
     for (const key in attrs) {
       if (node[key]) {
@@ -2127,6 +2148,7 @@ export class GridStack {
     n.noResize = Utils.toBool(el.getAttribute("gs-no-resize"));
     n.noMove = Utils.toBool(el.getAttribute("gs-no-move"));
     n.locked = Utils.toBool(el.getAttribute("gs-locked"));
+    n.sizeToContent = Utils.toBool(el.getAttribute("gs-size-to-content"));
     n.id = el.getAttribute("gs-id");
 
     // read but never written out
@@ -2176,11 +2198,11 @@ export class GridStack {
    * and remember the prev columns we used, or get our count from parent, as well as check for cellHeight==='auto' (square)
    * or `sizeToContent` gridItem options.
    */
-  public onResize(): GridStack {
-    if (!this.el?.clientWidth) return; // return if we're gone or no size yet (will get called again)
-    if (this.prevWidth === this.el.clientWidth) return; // no-op
-    this.prevWidth = this.el.clientWidth;
-    // console.log('onResize ', this.el.clientWidth);
+  public onResize(clientWidth = this.el?.clientWidth): GridStack {
+    if (!clientWidth) return; // return if we're gone or no size yet (will get called again)
+    if (this.prevWidth === clientWidth) return; // no-op
+    this.prevWidth = clientWidth;
+    // console.log('onResize ', clientWidth);
 
     this.batchUpdate();
 
@@ -2188,7 +2210,7 @@ export class GridStack {
     let columnChanged = false;
     if (this._autoColumn && this.parentGridNode) {
       if (this.opts.column !== this.parentGridNode.w) {
-        this.column(this.parentGridNode.w, this.opts.layout || "none");
+        this.column(this.parentGridNode.w, this.opts.layout || "list");
         columnChanged = true;
       }
     } else {
@@ -2219,7 +2241,10 @@ export class GridStack {
     // update any gridItem height with sizeToContent, but wait for DOM $animation_speed to settle if we changed column count
     // TODO: is there a way to know what the final (post animation) size of the content will be so we can animate the column width and height together rather than sequentially ?
     if (delay && this.hasAnimationCSS())
-      return setTimeout(() => this.resizeToContentCheck(false, n), 300 + 10);
+      return setTimeout(
+        () => this.resizeToContentCheck(false, n),
+        this.animationDelay
+      );
 
     if (n) {
       if (Utils.shouldSizeToContent(n)) this.resizeToContentCBCheck(n.el);
@@ -2354,7 +2379,7 @@ export class GridStack {
     return this;
   }
 
-  static GDRev = "11.0.1-dev";
+  static GDRev = "11.1.2";
 
   /* ===========================================================================================
    * drag&drop methods that used to be stubbed out and implemented in dd-gridstack.ts
