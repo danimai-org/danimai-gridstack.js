@@ -109,8 +109,8 @@ export default class ScrollingMonitor {
       const { scaleX, scaleY, container } = this;
       const { strengthMultiplier, onScrollChange } = this.options;
       const elementCoords = this.el.getBoundingClientRect();
-      const atTop = elementCoords.top < 100;
-      const atBottom = window.innerHeight - elementCoords.top < 100;
+      const atTop = elementCoords.top < 10;
+      const atBottom = window.innerHeight - elementCoords.bottom < 10;
       this.scaleY =
         (this.scaleY === 0 && atTop) || atBottom
           ? 0.4 * (atTop ? -1 : 1)
