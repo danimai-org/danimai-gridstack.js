@@ -2,7 +2,6 @@ import throttle from "lodash.throttle";
 import { intBetween, getCoords } from "./util";
 import type { Options } from "./index";
 import raf from "./raf";
-import { Utils } from "../gridstack";
 
 export default class ScrollingMonitor {
   container: HTMLElement;
@@ -13,7 +12,7 @@ export default class ScrollingMonitor {
   frame: null | number;
 
   constructor(private el: HTMLElement, private options: Options) {
-    this.container = Utils.getScrollElement(el);
+    this.container = document.scrollingElement as HTMLElement;
     this.eventBody = this.container.ownerDocument.body as HTMLBodyElement;
     this.options = options;
     this.scaleX = 0;
