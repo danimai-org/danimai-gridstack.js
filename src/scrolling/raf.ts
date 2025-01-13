@@ -5,7 +5,7 @@
  * https://github.com/haltu/muuri/blob/master/LICENSE.md
  */
 
-const dt = 1000 / 60;
+const dt = 1000 / 120;
 
 const raf = (
   window.requestAnimationFrame ||
