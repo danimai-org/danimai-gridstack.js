@@ -14,9 +14,12 @@ export default class ScrollingMonitor {
 
   constructor(private el: HTMLElement, private options: Options) {
     const mobileMode = document.body.getAttribute("mobile-mode") === "true";
-    this.container = mobileMode
-      ? Utils.getScrollElement(el)
-      : (document.scrollingElement as HTMLElement);
+    const mobileView = document.body.getAttribute("mobile-view") === "true";
+
+    this.container =
+      mobileMode && !mobileView
+        ? Utils.getScrollElement(el)
+        : (document.scrollingElement as HTMLElement);
     this.eventBody = this.container.ownerDocument.body as HTMLBodyElement;
     this.options = options;
     this.scaleX = 0;
