@@ -1,6 +1,6 @@
 {
   "name": "danimai-gridstack",
-  "version": "11.1.6",
+  "version": "11.1.8",
   "license": "MIT",
   "author": "Deepak Mandal <deepak379mandal@gmail.com> (https://github.com/depak379mandal)",
   "description": "TypeScript/JS lib for dashboard layout and creation, responsive, mobile support, no external dependencies, with many wrappers (React, Angular, Vue, Ember, knockout...)",

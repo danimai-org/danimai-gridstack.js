@@ -281,6 +281,8 @@ export class GridStack {
   /** @internal true if we got created by drag over gesture, so we can removed on drag out (temporary) */
   public _isTemp?: boolean;
 
+  private scrollingMonitor: ScrollingMonitor[] = [];
+
   /** @internal create placeholder DIV as needed */
   public get placeholder(): GridItemHTMLElement {
     if (!this._placeholder) {
@@ -2905,17 +2907,24 @@ export class GridStack {
       // variables used/cashed between the 3 start/move/end methods, in addition to node passed above
       let cellWidth: number;
       let cellHeight: number;
-      let scrollingMonitor: ScrollingMonitor;
 
       /** called when item starts moving/resizing */
       const onStartMoving = (event: Event, ui: DDUIData) => {
         // console.log("Started moving", el);
-        scrollingMonitor = createScrollMonitor(el, {
-          onScrollChange: (newLeft, newTop) => {
-            ui.position.top = newTop;
-          },
-        });
-        scrollingMonitor.start();
+        for (const monitor of this.scrollingMonitor) {
+          monitor.stop();
+        }
+
+        this.scrollingMonitor.push(
+          createScrollMonitor(el, {
+            onScrollChange: (newLeft, newTop) => {
+              ui.position.top = newTop;
+            },
+          })
+        );
+        for (const monitor of this.scrollingMonitor) {
+          monitor.start();
+        }
         // trigger any 'dragstart' / 'resizestart' manually
         if (this._gsEventHandler[event.type]) {
           this._gsEventHandler[event.type](event, event.target);
@@ -2933,7 +2942,9 @@ export class GridStack {
 
       /** called when the item stops moving/resizing */
       const onEndMoving = (event: Event) => {
-        scrollingMonitor.stop();
+        for (const monitor of this.scrollingMonitor) {
+          monitor?.stop();
+        }
         this.placeholder.remove();
         delete node._moving;
         delete node._event;
