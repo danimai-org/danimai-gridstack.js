@@ -11,13 +11,14 @@ export default class ScrollingMonitor {
   scaleY: number;
   attached: boolean;
   frame: null | number;
+  mobileView: boolean;
 
   constructor(private el: HTMLElement, private options: Options) {
     const mobileMode = document.body.getAttribute("mobile-mode") === "true";
-    const mobileView = document.body.getAttribute("mobile-view") === "true";
+    this.mobileView = document.body.getAttribute("mobile-view") === "true";
 
     this.container =
-      mobileMode && !mobileView
+      mobileMode && !this.mobileView
         ? Utils.getScrollElement(el)
         : (document.scrollingElement as HTMLElement);
     this.eventBody = this.container.ownerDocument.body as HTMLBodyElement;
@@ -117,7 +118,8 @@ export default class ScrollingMonitor {
       const { strengthMultiplier, onScrollChange } = this.options;
       const elementCoords = this.el.getBoundingClientRect();
       const atTop = elementCoords.top < 10;
-      const atBottom = window.innerHeight - elementCoords.bottom < 10;
+      const atBottom =
+        window.innerHeight - elementCoords.bottom < (this.mobileView ? 50 : 10);
       this.scaleY =
         (this.scaleY === 0 && atTop) || atBottom
           ? 0.4 * (atTop ? -1 : 1)
