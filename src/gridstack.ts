@@ -2915,13 +2915,13 @@ export class GridStack {
           monitor.stop();
         }
 
-        this.scrollingMonitor.push(
+        this.scrollingMonitor = [
           createScrollMonitor(el, {
             onScrollChange: (newLeft, newTop) => {
               ui.position.top = newTop;
             },
-          })
-        );
+          }),
+        ];
         for (const monitor of this.scrollingMonitor) {
           monitor.start();
         }
